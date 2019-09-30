@@ -36,7 +36,7 @@ function new-EZVHeader
         ContentType = "application/json"
         Authorization= ("Basic $base64AuthInfo")
     }
-    $env:EZVheaders = $headers # create an env variable accessible for other cmdlet
+    $global:EZVheaders = $headers # create an global variable accessible to other cmdlet
     return $headers
 }
 
@@ -100,8 +100,8 @@ function new-EZVticket
         [parameter(mandatory=$true)]
         [ArgumentCompleter({
             param ($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
-            $uri = "https://prolival.easyvista.com/api/v1/50005/catalog-requests"
-            Invoke-RestMethod -Headers $headers -uri $uri -Method GET |
+            $uri = "https://prolival.easyvista.com/api/v1/50005/catalog-requests"   # NEED TO FIX THAT SHIT. GLOBAL VARIABLE ?
+            Invoke-RestMethod -Headers $global:headers -uri $uri -Method GET |
             select -ExpandProperty records | 
             select -ExpandProperty CATALOG_REQUEST_PATH | where {$_ -match $wordToComplete}
         })]
