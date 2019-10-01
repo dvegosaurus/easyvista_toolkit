@@ -1,3 +1,13 @@
+function get-EZVuser
+{
+    [cmdletbinding()]
+    param()
+    $Endpoint = "employees"
+    if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
+    $data = Invoke-RestMethod -uri "$Global:EZVcompleteURI$Endpoint" -Method GET -Headers $Global:EZVheaders
+    $data.records
+}
+
 function set-EZVContext
 {
 <#
