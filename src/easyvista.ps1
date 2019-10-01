@@ -134,9 +134,11 @@ function new-EZVticket # work in progress
     [cmdletbinding()]
     param(
         [parameter(mandatory=$true)]
-        [string]$origin,
-        [parameter(mandatory=$true)]
         [string]$description,
+        [parameter(mandatory=$true)]
+        [string]$recipientName,
+        [parameter(mandatory=$true)]
+        [string]$requestorName,
         [parameter(mandatory=$true)]
         [ArgumentCompleter({
             param ($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
@@ -154,14 +156,27 @@ function new-EZVticket # work in progress
 
     $Endpoint = "requests"
     $uri = "$Global:EZVcompleteURI$Endpoint"
+
+    # finding the catalog ID based on its name
+    $catalogEndpoint =  "catalog-requests"
+    $catalogID = Invoke-RestMethod -uri "$Global:EZVcompleteURI$catalogEndpoint" -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records | where {$_.CATALOG_REQUEST_PATH -match $catalog } 
+    $catalogGUID = Invoke-RestMethod -uri $catalogID.HREF -Headers  $Global:EZVheaders | select -ExpandProperty CATALOG_GUID
     $body = [PSCustomObject]@{
-        employees = @(
+        $Endpoint = @(
             @{
-            identification      = "toto"
+            recipient_Name = $recipientName
+            requestor_Name = $requestorName
+            description    = $description
+            catalog_guid   = $catalogGUID -replace '{|}',''
             }
         )
     } | ConvertTo-Json
+
+    Write-Verbose $body
     # send the request
-    Invoke-RestMethod -Headers $headers -uri $uri -Method POST -Body $body -ContentType "application/json"
+    Invoke-RestMethod -Headers $global:EZVheaders -uri $uri -Method POST -Body $body -ContentType "application/json"
 
 }
+
+
+# new-EZVticket -recipientName "RGOU_test1" -requestorName "RGOU_test" -description "this is a test incident created while writing a script" -catalog "service/toto/creation de truc" -Verbose
