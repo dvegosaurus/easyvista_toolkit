@@ -12,4 +12,4 @@ All notable changes to this project will be documented in this file.
     - Get-EZVRequests
     - Get-EVZCatalogRequests
 - Function to set the global variables used by other functions
-    - see ADR 0002
+    - see ADR 0001_GlobalVariables
