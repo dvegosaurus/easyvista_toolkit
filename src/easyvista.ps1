@@ -11,7 +11,6 @@ function get-EZVCatalogRequests
     $data.records
 }
 
-
 function get-EZVRequests
 {
     [cmdletbinding()]
@@ -24,7 +23,6 @@ function get-EZVRequests
     $data = Invoke-RestMethod -uri "$Global:EZVcompleteURI$Endpoint" -Method GET -Headers $Global:EZVheaders
     $data.records
 }
-
 
 function get-EZVusers
 {
