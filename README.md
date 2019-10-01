@@ -1,12 +1,14 @@
 # easyvista POSH toolkit
-this is a set of function to interact with easyvista rest API using powershell.
+this is a set of functions to interact with easyvista's rest API using powershell.
 
 ## Changelog
 All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 - User Creation
+    - In progress (30%)
 - Tickets Creation
+    - In progress (15%)
 
 ## [0.0.1] - 2010/10/01
 ### Added
