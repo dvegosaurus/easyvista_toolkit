@@ -47,58 +47,13 @@ The role this cmdlet belongs to
         "production"  {$global:EZVBase = "50004"}
     }
     $Global:EZVcompleteURI = $uri+"/api/v1/"+$global:EZVBase+"/"
-    $EZVContextFunctionHasRun = $true # will provide an easy check for other functions
-    return $headers
-}
-function new-EZVHeader
-{
-<#
-.Synopsis
-   Create a header hashtable to use with other EZV cmdlet
-.DESCRIPTION
-   Long description
-.EXAMPLE
-   Create a header hashtable to use with other EZV cmdlet. The password parameter is not
-   an encrypted string but is encrypted when creating the header.
-.EXAMPLE
-   new-EZVHeader -username <username> -password <password>
-.INPUTS
-   Inputs to this cmdlet (if any)
-.OUTPUTS
-   Output from this cmdlet (if any)
-.NOTES
-   General notes
-.COMPONENT
-   The component this cmdlet belongs to
-.ROLE
-   The role this cmdlet belongs to
-.FUNCTIONALITY
-   The functionality that best describes this cmdlet
-#>
-    param(
-        [parameter(mandatory=$true)]
-        [string]$username,
-        [parameter(mandatory=$true)]
-        [string]$password
-    )
-
-# convert login:password to an encrypted string
-    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username,$password)))
-    $headers = @{
-        ContentType = "application/json"
-        Authorization= ("Basic $base64AuthInfo")
-    }
-    $global:EZVheaders = $headers # create an global variable accessible to other cmdlet
+    $Global:EZVContextFunctionHasRun = $true # will provide an easy check for other functions
     return $headers
 }
 
 function new-EZVuser
 {
     param(
-        [parameter(mandatory=$true)]
-        [string]$url,
-        [parameter(mandatory=$true)]
-        [string]$headers,
         [parameter(mandatory=$true)]
         [string]$identification,
         [parameter(mandatory=$true)]
@@ -110,10 +65,10 @@ function new-EZVuser
         [parameter(mandatory=$true)]
         [string]$mail,
         [parameter(mandatory=$true)]
-        [string]$entrydate,
-        [switch]$sandbox
+        [string]$entrydate
     )
 
+    if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
     if ($sandbox)
     {$restpoint = "/api/v1/50005/employees"}
     else 
@@ -142,10 +97,6 @@ function new-EZVticket
 {
     param(
         [parameter(mandatory=$true)]
-        [string]$url,
-        [parameter(mandatory=$true)]
-        [string]$headers,
-        [parameter(mandatory=$true)]
         [string]$origin,
         [parameter(mandatory=$true)]
         [string]$description,
@@ -157,10 +108,10 @@ function new-EZVticket
             select -ExpandProperty records | 
             select -ExpandProperty CATALOG_REQUEST_PATH | where {$_ -match $wordToComplete}
         })]
-        [string]$catalog,
-        [switch]$sandbox
+        [string]$catalog
     )
 
+    if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
     if ($sandbox)
     {$restpoint = "/api/v1/50005/employees"}
     else 
