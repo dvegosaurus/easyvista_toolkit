@@ -1,3 +1,55 @@
+function set-EZVContext
+{
+<#
+.SYNOPSIS
+Define accessible variable for other cmdlet.
+.DESCRIPTION
+This cmdlet will create a set of global variables accessible for other cmdlet in the module. Since those global variables will be needed to use autocompletion in other cmdlet, it is mandatory to run prior to any other EZV cmdlet otherwise they will return an error.
+.EXAMPLE
+set-EZVContext -username user -password 123456 -uri https://my.easyvista.com -database production
+.INPUTS
+Inputs to this cmdlet (if any)
+.OUTPUTS
+Output from this cmdlet (if any)
+.NOTES
+General notes
+.COMPONENT
+The component this cmdlet belongs to
+.ROLE
+The role this cmdlet belongs to
+.FUNCTIONALITY
+   The functionality that best describes this cmdlet
+#>
+    param(
+        [parameter(mandatory=$true)]
+        [string]$username,
+        [parameter(mandatory=$true)]
+        [string]$password,
+        [parameter(mandatory=$true)]
+        [string]$uri,
+        [parameter(mandatory=$true)]
+        [validateset("sandbox","production")]
+        [string]$database
+    )
+
+# convert login:password to an encrypted string
+    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username,$password)))
+    $headers = @{
+        ContentType = "application/json"
+        Authorization= ("Basic $base64AuthInfo")
+    }
+    # creating global variable, acccessible to other cmdlet (see ADR 0001)
+    $global:EZVheaders = $headers 
+    $global:EZVuri     = $uri
+    switch ($database)
+    {
+        "sandbox"     {$global:EZVBase = "50005"}
+        "production"  {$global:EZVBase = "50004"}
+    }
+    $Global:EZVcompleteURI = $uri+"/api/v1/"+$global:EZVBase+"/"
+    $EZVContextFunctionHasRun = $true # will provide an easy check for other functions
+    return $headers
+}
 function new-EZVHeader
 {
 <#
