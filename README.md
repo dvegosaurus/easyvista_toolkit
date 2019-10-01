@@ -1,7 +1,10 @@
-# Changelog
+# easyvista POSH toolkit
+this is a set of function to interact with easyvista rest API using powershell.
+
+## Changelog
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+### [Unreleased]
 - User Creation
 - Tickets Creation
 
