@@ -1,4 +1,32 @@
-function get-EZVuser
+function get-EZVCatalogRequests
+{
+    [cmdletbinding()]
+    param()
+    
+    if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
+
+    $Endpoint = "catalog-requests"
+    $uri =  "$Global:EZVcompleteURI$Endpoint"
+    $data = Invoke-RestMethod -uri "$Global:EZVcompleteURI$Endpoint" -Method GET -Headers $Global:EZVheaders
+    $data.records
+}
+
+
+function get-EZVRequests
+{
+    [cmdletbinding()]
+    param()
+    
+    if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
+
+    $Endpoint = "requests"
+    $uri =  "$Global:EZVcompleteURI$Endpoint"
+    $data = Invoke-RestMethod -uri "$Global:EZVcompleteURI$Endpoint" -Method GET -Headers $Global:EZVheaders
+    $data.records
+}
+
+
+function get-EZVusers
 {
     [cmdletbinding()]
     param()
@@ -61,7 +89,7 @@ The role this cmdlet belongs to
     return $headers
 }
 
-function new-EZVuser
+function new-EZVuser # work in progress
 {
     param(
         [parameter(mandatory=$true)]
@@ -103,8 +131,9 @@ function new-EZVuser
 
 }
 
-function new-EZVticket
+function new-EZVticket # work in progress
 {
+    [cmdletbinding()]
     param(
         [parameter(mandatory=$true)]
         [string]$origin,
@@ -113,34 +142,27 @@ function new-EZVticket
         [parameter(mandatory=$true)]
         [ArgumentCompleter({
             param ($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
-            $uri = "https://prolival.easyvista.com/api/v1/50005/catalog-requests"   # NEED TO FIX THAT SHIT. GLOBAL VARIABLE ?
-            Invoke-RestMethod -Headers $global:headers -uri $uri -Method GET |
+            $Endpoint = "catalog-requests"
+            $uri =  "$Global:EZVcompleteURI$Endpoint"
+            Invoke-RestMethod -Headers $global:EZVheaders -uri $uri -Method GET |
             select -ExpandProperty records | 
             select -ExpandProperty CATALOG_REQUEST_PATH | where {$_ -match $wordToComplete}
         })]
         [string]$catalog
     )
 
+    # check if necessary variable have been set
     if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
-    if ($sandbox)
-    {$restpoint = "/api/v1/50005/employees"}
-    else 
-    {$restpoint = "/api/v1/50004/employees"}
 
-    $uri = $url+$restpoint
+    $Endpoint = "requests"
+    $uri = "$Global:EZVcompleteURI$Endpoint"
     $body = [PSCustomObject]@{
         employees = @(
             @{
             identification      = "toto"
-            last_name           = $lastname
-            login               = $login
-            phone_number        = $phone
-            e_mail              = $mail
-            begin_of_contract   = $entrydate
             }
         )
     } | ConvertTo-Json
-
     # send the request
     Invoke-RestMethod -Headers $headers -uri $uri -Method POST -Body $body -ContentType "application/json"
 
