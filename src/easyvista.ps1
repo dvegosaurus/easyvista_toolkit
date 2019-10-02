@@ -90,42 +90,77 @@ The role this cmdlet belongs to
 function new-EZVuser # work in progress
 {
     param(
-        [parameter(mandatory=$true)]
-        [string]$identification,
-        [parameter(mandatory=$true)]
-        [string]$lastname,
-        [parameter(mandatory=$true)]
-        [string]$login,
-        [parameter(mandatory=$true)]
-        [string]$phone,
-        [parameter(mandatory=$true)]
-        [string]$mail,
-        [parameter(mandatory=$true)]
-        [string]$entrydate
+        [parameter(mandatory=$false)]
+        [ArgumentCompleter({
+            param ($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
+            $Endpoint = "departments"
+            $uri =  "$Global:EZVcompleteURI$Endpoint"
+            Invoke-RestMethod -Headers $global:EZVheaders -uri $uri -Method GET |
+            select -ExpandProperty records | 
+            select -ExpandProperty DEPARTMENT_PATH | where {$_ -match $wordToComplete}
+        })]
+        [string]$departmentPath,
+        [parameter(mandatory=$false)]
+        [string]$endOfContract,
+        [parameter(mandatory=$false)]
+        [string]$beginOfContract,
+        [parameter(mandatory=$false)]
+        [string]$lastName,
+        [parameter(mandatory=$false)]
+        [string]$eMail,
+        [parameter(mandatory=$false)]
+        [string]$phoneNumber,
+        [parameter(mandatory=$false)]
+        [ArgumentCompleter({
+            param ($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
+            $Endpoint = "locations"
+            $uri =  "$Global:EZVcompleteURI$Endpoint"+"?max_rows=4000"
+            $results = Invoke-RestMethod -Headers $global:EZVheaders -uri $uri -Method GET |
+            select -ExpandProperty records | 
+            select -ExpandProperty LOCATION_PATH | where {$_ -match $wordToComplete} | foreach {"'"+$_+"'"}
+            $results
+        })]
+        [string]$locationPath
     )
 
+    Write-Verbose $locationPath
+    # check if necessary variable have been set
     if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
-    if ($sandbox)
-    {$restpoint = "/api/v1/50005/employees"}
-    else 
-    {$restpoint = "/api/v1/50004/employees"}
 
-    $uri = $url+$restpoint
-    $body = [PSCustomObject]@{
-        employees = @(
-            @{
-            identification      = "toto"
-            last_name           = $lastname
-            login               = $login
-            phone_number        = $phone
-            e_mail              = $mail
-            begin_of_contract   = $entrydate
-            }
+    # get location HREF
+    $locationEndpoint = "locations"
+    $uri =  "$Global:EZVcompleteURI$locationEndpoint"+"?max_rows=4000"
+    $location = Invoke-RestMethod -Headers $global:EZVheaders -uri $uri -Method GET | select -ExpandProperty records | where {$_.LOCATION_PATH -eq $locationPath}
+    $locationID = Invoke-RestMethod $location.HREF -Headers $Global:EZVheaders | select -ExpandProperty LOCATION_ID
+
+    # get department HREF
+    $departmentEndpoint = "departments"
+    $uri =  "$Global:EZVcompleteURI$departmentEndpoint"
+    $departmentID = Invoke-RestMethod -Headers $global:EZVheaders -uri $uri -Method GET | select -ExpandProperty records | where {$_.DEPARTMENT_PATH -eq $departmentPath}  | select -ExpandProperty DEPARTMENT_ID
+
+    $Endpoint = "employees"
+    $uri = "$Global:EZVcompleteURI$Endpoint"
+    
+    $PSO = [PSCustomObject]@{
+        $Endpoint = @(
+            @{}
         )
-    } | ConvertTo-Json
+    }
 
+    # add member to the PSO hashtable if they were passed as parameter
+    if ($departmentPath)  {$PSO.$endpoint[0] += @{"DEPARTMENT_ID"        = $departmentID}}
+    if ($locationPath)    {$PSO.$endpoint[0] += @{"LOCATION_ID"          = $locationID}}
+    if ($endOfContract)   {$PSO.$endpoint[0] += @{"END_OF_CONTRACT"   = $endOfContract}}
+    if ($beginOfContract) {$PSO.$endpoint[0] += @{"BEGIN_OF_CONTRACT" = $beginOfContract}}
+    if ($lastName)        {$PSO.$endpoint[0] += @{"LAST_NAME"         = $lastName}}
+    if ($eMail)           {$PSO.$endpoint[0] += @{"E_MAIL"            = $eMail}}
+    if ($phoneNumber)     {$PSO.$endpoint[0] += @{"PHONE_NUMBER"      = $phoneNumber}}
+   
+    $body = $PSO | ConvertTo-Json
+
+    Write-Verbose $body
     # send the request
-    Invoke-RestMethod -Headers $headers -uri $uri -Method POST -Body $body -ContentType "application/json"
+    Invoke-RestMethod -Headers $global:EZVheaders -uri $uri -Method POST -Body $body -ContentType "application/json"
 
 }
 
