@@ -1,3 +1,38 @@
+function get-EZVDepartments
+{
+    [cmdletbinding()]
+    param(
+    [parameter(mandatory=$false)]
+    [string]$filter,
+    [parameter(mandatory=$false)]
+    [string]$maxrows = 100
+    )
+    
+    if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
+    $Endpoint = "Departments"
+    $uri =  "$Global:EZVcompleteURI$Endpoint"+"?max_rows=$maxrows"
+    $data = Invoke-RestMethod -uri $uri -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records | where {$_.DEPARTMENT_PATH -match $filter}
+    $data
+}
+
+function get-EZVLocations
+{
+    [cmdletbinding()]
+    param(
+    [parameter(mandatory=$false)]
+    [string]$filter,
+    [parameter(mandatory=$false)]
+    [string]$maxrows = 100
+    )
+    
+    if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
+
+    $Endpoint = "Locations"
+    $uri =  "$Global:EZVcompleteURI$Endpoint"+"?max_rows=$maxrows"
+    $data = Invoke-RestMethod -uri $uri -Method GET -Headers $Global:EZVheaders  | select -ExpandProperty records | where {$_.LOCATION_PATH -match $filter}
+    $data
+}
+
 function get-EZVCatalogRequests
 {
     [cmdletbinding()]
