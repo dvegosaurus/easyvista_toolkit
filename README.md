@@ -1,14 +1,26 @@
 # easyvista POSH toolkit
-this is a set of functions to interact with easyvista's rest API using powershell.
+This is a set of functions to interact with easyvista's rest API using powershell.
 
 ## Changelog
 All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 - User Creation
-    - In progress (30%)
+    - In progress (60%)
 - Tickets Creation
-    - In progress (15%)
+    - In progress (50%)
+- Error management in functions
+
+*Note: error management will be based on http return code, for now I'm focusing on getting the functions to work and understanding the API*
+
+## [0.0.2] - 2010/10/01
+### Added
+- Get functions for:
+    - Locations (get-EZV-locations)
+    - Departments (get-EZV-departments)
+- initial functions to:
+    - create a user
+    - create a request
 
 ## [0.0.1] - 2010/10/01
 ### Added
