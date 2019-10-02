@@ -5,20 +5,20 @@ This is a set of functions to interact with easyvista's rest API using powershel
 All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
-- User Creation
+- User Creation:
     - In progress (60%)
-- Tickets Creation
+- Tickets Creation:
     - In progress (50%)
 - Error management in functions
 
-*Note: error management will be based on http return code, for now I'm focusing on getting the functions to work and understanding the API*
+*Note: error management will be based on http return codes, for now I'm focusing on getting the functions to work and understanding the API*
 
-## [0.0.2] - 2010/10/01
+## [0.0.2] - 2010/10/03
 ### Added
 - Get functions for:
     - Locations (get-EZV-locations)
     - Departments (get-EZV-departments)
-- initial functions to:
+- basic working functions to:
     - create a user
     - create a request
 
