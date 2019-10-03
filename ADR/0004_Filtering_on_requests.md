@@ -19,7 +19,7 @@ We will use the *where-object* from powershell to filter on requestor and/or rec
 - none
 ### Cons
 - Requesting for requests will be slower
-- Requesting for requests will be less reliable when filtering on requestor and/or recipient
- - The maxrows parameter will determine the set of data on which the filtering will take place 
+- Requesting for requests will be less reliable when filtering on requestor and/or recipient:
+    - The maxrows parameter will determine the set of data on which the filtering will take place 
 
 *__note__: we might wan't to implement a ways to sort result from queries to /requests by date either by default or using cmdlets's parameters*

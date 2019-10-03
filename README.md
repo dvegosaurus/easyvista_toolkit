@@ -13,6 +13,15 @@ All notable changes to this project will be documented in this file.
 
 *Note: error management will be based on http return codes, for now I'm focusing on getting the functions to work and understanding the API*
 
+## [0.0.3] - 2010/10/03
+### Changed
+- Improved get-EZVRequests and get-EZVUsers functions:
+    - Added a maxrows parameter to limit the numbers of results
+        - Done to bypass the default 100 results builtin the easyvista API
+    - Added filtering:
+        - *-filter* parameter for get-EZVUsers
+        - *-rfc,-requestor,-recipient* for get-EZVRequests
+
 ## [0.0.2] - 2010/10/03
 ### Added
 - Get functions for:
