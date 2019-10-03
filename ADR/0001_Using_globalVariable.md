@@ -5,14 +5,13 @@ date : 2019/10/01
 accepted
 
 ## Context
-We want to use autocompletion in some functions to make them more usable. Because the easyvista rest API relies on GUID for some
-parameters we need to be able to query their friendly name within in the functions parameters.
+We want to beable to have autocompletion in the cmdlet to make them more user friendly. 
+Because the easyvista rest API relies on GUID for some parameters we'll need to be able to query their friendly name within in the cmdlet parameters.
 
-We tried using environment variables but they don't seem to work with hashtabke (we did not check extensively).
+We tried using environment variables but they don't seem to work with hashtable (we did not check extensively).
 
 ## Decision
-We will use global variable name *$EZVvariablename* set by a function that will define a context of execution for the other 
-functions (easyvista URI, Headers ... )
+We will use global variables (named *$Global:EZVvariablename*) set by a dedicated cmdlet (*set-EZVcontext*). That cmdlet will define an execution context for all other cmdlet in the project.
 
 ## Consequences
 ### Pros
