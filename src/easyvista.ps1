@@ -62,11 +62,21 @@ function get-EZVRequests
 function get-EZVusers
 {
     [cmdletbinding()]
-    param()
-    $Endpoint = "employees"
+    param(
+    [parameter(mandatory=$false)]
+    [string]$filter,
+    [parameter(mandatory=$false)]
+    [string]$maxrows = 100
+    )
+
+    # check if context was set
     if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
-    $data = Invoke-RestMethod -uri "$Global:EZVcompleteURI$Endpoint" -Method GET -Headers $Global:EZVheaders
-    $data.records
+    if ($maxrows -eq 100){Write-Warning "Only first $maxrows will be returned. Use -maxrows to increase the number."}
+
+    $Endpoint = "employees"
+    $uri =  "$Global:EZVcompleteURI$Endpoint"+"?search=last_name~$filter*&max_rows=$maxrows"
+    $data = Invoke-RestMethod -uri $uri  -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records | where {$_.last_name -match $filter}
+    $data
 }
 
 function set-EZVContext
