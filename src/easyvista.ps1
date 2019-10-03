@@ -48,16 +48,57 @@ function get-EZVCatalogRequests
 
 function get-EZVRequests
 {
-    [cmdletbinding()]
-    param()
+     param(
+    [parameter(mandatory=$false)]
+    [string]$rfc, # filtering on RFC
+    [parameter(mandatory=$false)]
+    [string]$maxrows = 100,
+    [parameter(mandatory=$false)]
+    [string]$recipient,
+    [parameter(mandatory=$false)]
+    [string]$requestor
+    )
     
     if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
-
+    if ($maxrows -eq 100){Write-Warning "Only first $maxrows will be returned. Use -maxrows to increase the number."}
     $Endpoint = "requests"
-    $uri =  "$Global:EZVcompleteURI$Endpoint"
-    $data = Invoke-RestMethod -uri "$Global:EZVcompleteURI$Endpoint" -Method GET -Headers $Global:EZVheaders
-    $data.records
+
+# create filtering scriptblock
+    if ($recipient){$recipientString = ('$_.recipient.last_name -match "{0}"') -f $recipient}
+    if ($requestor){$requestorString = ('$_.requestor.last_name -match "{0}"') -f $requestor}
+
+    if ($recipient){[scriptblock]$filter = [ScriptBlock]::Create($recipientString)}
+    if ($requestor){[scriptblock]$filter = [ScriptBlock]::Create($requestorString)}
+    if ($recipient -and $requestor)
+    {
+        [scriptblock]$filter = [ScriptBlock]::Create($recipientString +" -and"+$requestorString)
+    }
+
+    if ($filter)
+    {
+# create and run the rest request
+    $uri =  "$Global:EZVcompleteURI$Endpoint"+"?max_rows=$maxrows"
+    $data = Invoke-RestMethod -uri $uri -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records | Where-Object -FilterScript  $filter
+    $data
+    }
+    elseif($rfc)
+    {
+# create and run the rest request
+    $uri =  "$Global:EZVcompleteURI$Endpoint"+('?search=rfc_number~"*{0}*"&max_rows={1}' -f $rfc,$maxrows)
+    $uri
+    $data = Invoke-RestMethod -uri $uri -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records 
+    $data
+    }
+    else
+    {
+# create and run the rest request
+    $uri =  "$Global:EZVcompleteURI$Endpoint"+"?max_rows=$maxrows"
+    $data = Invoke-RestMethod -uri $uri -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records 
+    $data
+    }
+
 }
+
 
 function get-EZVusers
 {
