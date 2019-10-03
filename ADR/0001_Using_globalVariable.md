@@ -5,7 +5,7 @@ date : 2019/10/01
 accepted
 
 ## Context
-We want to beable to have autocompletion in the cmdlet to make them more user friendly. 
+We want to be able to have autocompletion in the cmdlet to make them more user friendly. 
 Because the easyvista rest API relies on GUID for some parameters we'll need to be able to query their friendly name within in the cmdlet parameters.
 
 We tried using environment variables but they don't seem to work with hashtable (we did not check extensively).
