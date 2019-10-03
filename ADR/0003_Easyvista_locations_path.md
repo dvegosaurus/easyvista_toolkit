@@ -15,7 +15,7 @@ Also filtering on location_path when querying /locations does not work : queries
 
 ## Decision
 Instead of using the [search option](https://wiki.easyvista.com/xwiki/bin/view/Documentation/REST+API+-+See+a+list+of+locations) from the API we will rely instead on powershell
-Where-Object cmdlet with the max_rows parameter from the API
+Where-Object cmdlet with the max_rows parameter from the API.
 
 ## Consequences
 ### Pros

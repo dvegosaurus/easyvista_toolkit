@@ -80,3 +80,11 @@ Invoke-RestMethod -Headers $headers -uri $uri -Method GET
 
 $uri = "https://my.easyvista.com/api/v1/50005/requests/i190925_004/comment"
 Invoke-RestMethod -Headers $headers -uri $uri -Method GET 
+
+##### Dynamic Scriptblock
+$string = "get-process"
+$filterscript = [ScriptBlock]::Create($string)
+$filterscript
+$filterscript = [ScriptBlock]::Create($filterscript.ToString() + " powershell")
+$filterscript
+& $filterscript
