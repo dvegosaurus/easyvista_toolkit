@@ -1,3 +1,4 @@
+#region get cmdlets
 function get-EZVDepartments
 {
     [cmdletbinding()]
@@ -119,7 +120,9 @@ function get-EZVusers
     $data = Invoke-RestMethod -uri $uri  -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records | where {$_.last_name -match $filter}
     $data
 }
+#endregion get cmdlet
 
+#region set cmdlets
 function set-EZVContext
 {
 <#
@@ -172,7 +175,9 @@ The role this cmdlet belongs to
     $Global:EZVContextFunctionHasRun = $true # will provide an easy check for other functions
     return $headers
 }
+#endregion set cmdlets
 
+#region new cmdlets
 function new-EZVuser # work in progress
 {
     param(
@@ -257,9 +262,12 @@ function new-EZVticket # work in progress
         [parameter(mandatory=$true)]
         [string]$description,
         [parameter(mandatory=$true)]
+        [ArgumentCompleter({
+            param ($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
+            $data = get-EZVusers -filter $wordtocomplete | select -ExpandProperty LAST_NAME | foreach {"'"+$_+"'"}
+            $data
+        })]
         [string]$recipientName,
-        [parameter(mandatory=$true)]
-        [string]$requestorName,
         [parameter(mandatory=$true)]
         [ArgumentCompleter({
             param ($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
@@ -275,18 +283,27 @@ function new-EZVticket # work in progress
     # check if necessary variable have been set
     if (!($Global:EZVContextFunctionHasRun)){throw "Please run the set-EZVContext cmdlet prior to running this one"}
 
+    # finding the catalog ID based on its name
+    Write-Verbose $catalog
+    $catalogEndpoint =  "catalog-requests"
+    $catalogID = Invoke-RestMethod -uri "$Global:EZVcompleteURI$catalogEndpoint" -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records | where {$_.CATALOG_REQUEST_PATH -eq $catalog } 
+    $catalogGUID = Invoke-RestMethod -uri $catalogID.HREF -Headers  $Global:EZVheaders | select -ExpandProperty CATALOG_GUID
+
+    # find the requestor ID based on its name
+    Write-Verbose $recipientName
+    $recipientEndpoint =  "Employees"
+    $uri =  "$Global:EZVcompleteURI$recipientEndpoint"+('?search=last_name~"*{0}*"') -f $recipientName
+    $recipientHREF = Invoke-RestMethod -uri $uri -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records | select -ExpandProperty HREF
+    $recipientID   = Invoke-RestMethod -uri $requestorHREF -Headers  $Global:EZVheaders  | select -ExpandProperty EMPLOYEE_ID
+
+
+# create the JSON object to be used in the body of the request
     $Endpoint = "requests"
     $uri = "$Global:EZVcompleteURI$Endpoint"
-
-    # finding the catalog ID based on its name
-    $catalogEndpoint =  "catalog-requests"
-    $catalogID = Invoke-RestMethod -uri "$Global:EZVcompleteURI$catalogEndpoint" -Method GET -Headers $Global:EZVheaders | select -ExpandProperty records | where {$_.CATALOG_REQUEST_PATH -match $catalog } 
-    $catalogGUID = Invoke-RestMethod -uri $catalogID.HREF -Headers  $Global:EZVheaders | select -ExpandProperty CATALOG_GUID
     $body = [PSCustomObject]@{
         $Endpoint = @(
             @{
-            recipient_Name = $recipientName
-            requestor_Name = $requestorName
+            recipient_id   = $recipientID
             description    = $description
             catalog_guid   = $catalogGUID -replace '{|}',''
             }
@@ -294,10 +311,11 @@ function new-EZVticket # work in progress
     } | ConvertTo-Json
 
     Write-Verbose $body
+
     # send the request
     Invoke-RestMethod -Headers $global:EZVheaders -uri $uri -Method POST -Body $body -ContentType "application/json"
 
 }
-
+#endregion new cmdlets
 
 # new-EZVticket -recipientName "RGOU_test1" -requestorName "RGOU_test" -description "this is a test incident created while writing a script" -catalog "service/toto/creation de truc" -Verbose

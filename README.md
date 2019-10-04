@@ -8,10 +8,19 @@ All notable changes to this project will be documented in this file.
 - User Creation:
     - In progress (60%)
 - Tickets Creation:
-    - In progress (50%)
+    - In progress (80%)
 - Error management in functions
 
 *Note: error management will be based on http return codes, for now I'm focusing on getting the functions to work and understanding the API*
+
+## [0.0.4] - 2010/10/04
+### Changed
+- Improved new-EZVRequest:
+    - Added autocomletion on recipient parameter
+    - Request should now be created with the proper path location
+        - only works if the recipient exist, hence the need for autocompletion
+    - removed the requestorname parameter
+        - easyvista doesn't take it into account and use instead the login in the headers
 
 ## [0.0.3] - 2010/10/03
 ### Changed
